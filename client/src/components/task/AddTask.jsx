@@ -68,7 +68,6 @@ const AddTask = ({ open, setOpen, task }) => {
         }
 
         try {
-            // For non-admin users, only update stage and date, keep other fields unchanged
             let newData;
             if (user?.isAdmin) {
                 newData = {

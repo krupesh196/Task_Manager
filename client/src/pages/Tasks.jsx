@@ -39,7 +39,7 @@ const Tasks = () => {
 
   const queryParams = {
     strQuery: status || "",
-    assignedTo: user?._id || "",
+    assignedTo: user?.isAdmin ? undefined : user?._id || "",
   };
 
   const { data, isLoading } = useGetAllTaskQuery({

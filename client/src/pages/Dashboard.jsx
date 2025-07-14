@@ -32,15 +32,24 @@ const TaskTable = ({ tasks }) => {
         <th className="py-2 hidden md:block">Created At</th>
       </tr>
     </thead>
-  )
+  );
+
+  const formatRelativeDate = (date) => {
+    const mDate = moment(date);
+    const now = moment();
+    if (mDate.isAfter(now)) {
+      const diff = mDate.diff(now, "days");
+      return `${diff} days ago`;
+    } else {
+      return mDate.fromNow();
+    }
+  };
 
   const TableRow = ({ task }) => (
     <tr className="border-b border-gray-300 text-gray-600 hover:bg-gray-300/10">
       <td className="py-2">
         <div className="flex items-center gap-2">
-          <div
-            className={clsx("w-4 h-4 rounded-full", TASK_TYPE[task.stage])}
-          />
+          <div className={clsx("w-4 h-4 rounded-full", TASK_TYPE[task.stage])} />
 
           <p className="text-base text-black">{task.title}</p>
         </div>
@@ -60,7 +69,8 @@ const TaskTable = ({ tasks }) => {
           {task.team.map((m, index) => (
             <div
               key={index}
-              className={clsx("w-7 h-7 rounded-full text-white flex items-center justify-center text-sm -mr-1",
+              className={clsx(
+                "w-7 h-7 rounded-full text-white flex items-center justify-center text-sm -mr-1",
                 BGS[index % BGS.length]
               )}
             >
@@ -71,10 +81,10 @@ const TaskTable = ({ tasks }) => {
       </td>
 
       <td className="py-2 hidden md:block">
-        <span className="text-base text-gray-600">{moment(task?.date).fromNow()}</span>
+        <span className="text-base text-gray-600">{formatRelativeDate(task?.date)}</span>
       </td>
     </tr>
-  )
+  );
 
   return (
     <>
@@ -82,19 +92,14 @@ const TaskTable = ({ tasks }) => {
         <table className="w-full">
           <TableHeader />
           <tbody>
-            {
-              tasks?.map((task, id) => (
-                <TableRow
-                  key={id}
-                  task={task}
-                />
-              ))
-            }
+            {tasks?.map((task, id) => (
+              <TableRow key={id} task={task} />
+            ))}
           </tbody>
         </table>
       </div>
     </>
-  )
+  );
 };
 
 const UserTable = ({ users }) => {
@@ -120,7 +125,6 @@ const UserTable = ({ users }) => {
             <p>{user.name}</p>
             <span className="text-xs text-black">{user?.role}</span>
           </div>
-
         </div>
       </td>
 
@@ -134,9 +138,9 @@ const UserTable = ({ users }) => {
           {user?.isActive ? "Disabled" : "Active"}
         </p>
       </td>
-      <td className="py-2 text-sm px-3 whitespace-nowrap">{moment(user?.createdAt).format('LL')}</td>
+      <td className="py-2 text-sm px-3 whitespace-nowrap">{moment(user?.createdAt).fromNow()}</td>
     </tr>
-  )
+  );
 
   return (
     <div className="w-full md:w-1/3 bg-white h-fit px-2 md:px-6 py-4 shadow-md rounded">
@@ -152,15 +156,25 @@ const UserTable = ({ users }) => {
   );
 };
 
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
+
+import { useEffect } from "react";
 
 const Dashboard = () => {
-  const user = useSelector(state => state.auth.user);
-  const { data, isLoading } = useGetDashboardStatsQuery();
+  const user = useSelector((state) => state.auth.user);
+  const { data, isLoading, refetch } = useGetDashboardStatsQuery(user?._id);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [refetch, user]);
 
   if (isLoading)
     return (
-      <div className='py-10'>
+      <div className="py-10">
         <Loading />
       </div>
     );
@@ -207,50 +221,39 @@ const Dashboard = () => {
           <span className="text-sm text-gray-400">{"TASK"}</span>
         </div>
 
-        <div className={clsx("w-10 h-10 rounded-full flex items-center justify-center text-white", bg)}>
+        <div
+          className={clsx("w-10 h-10 rounded-full flex items-center justify-center text-white", bg)}
+        >
           {icon}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="h-full py-4">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-        {
-          stats.map(({ icon, bg, label, total }, index) => (
-            <Card
-              key={index}
-              icon={icon}
-              bg={bg}
-              label={label}
-              count={total}
-              createdAt={stats[index].createdAt}
-            />
-          ))
-        }
+        {stats.map(({ icon, bg, label, total }, index) => (
+          <Card key={index} icon={icon} bg={bg} label={label} count={total} createdAt={stats[index].createdAt} />
+        ))}
       </div>
 
       <div className="w-full bg-white my-16 p-4 rounded shadow-sm">
-        <h4 className="text-xl text-gray-600 font-semibold">
-          Chart by Priority
-        </h4>
+        <h4 className="text-xl text-gray-600 font-semibold">Chart by Priority</h4>
 
         <Chart data={data?.graphData} />
       </div>
 
       <div className="w-full flex flex-col md:flex-row gap-4 2xl:gap-10 py-8">
-
         {/* left */}
 
         <TaskTable tasks={data?.last10Task} />
 
         {/* right */}
         {user?.isAdmin && <UserTable users={data?.users} />}
-
       </div>
     </div>
-  )
+  );
 };
 
 export default Dashboard;

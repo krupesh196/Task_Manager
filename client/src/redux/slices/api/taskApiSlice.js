@@ -5,8 +5,8 @@ const TASKS_URL = "/task";
 export const taskApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getDashboardStats: builder.query({
-            query: () => ({
-                url: `${TASKS_URL}/dashboard`,
+            query: (userId) => ({
+                url: `${TASKS_URL}/dashboard?userId=${userId}`,
                 method: "GET",
                 credentials: "include",
             }),
