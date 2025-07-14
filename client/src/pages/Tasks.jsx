@@ -42,7 +42,7 @@ const Tasks = () => {
     assignedTo: user?.isAdmin ? undefined : user?._id || "",
   };
 
-  const { data, isLoading } = useGetAllTaskQuery({
+  const { data, isLoading, refetch } = useGetAllTaskQuery({
     ...queryParams,
     isTrashed: "",
     search: searchTerm,
@@ -82,10 +82,10 @@ const Tasks = () => {
             {
               selected === 0
                 ?
-                <BoardView tasks={data?.tasks} />
+                <BoardView tasks={data?.tasks} refetch={refetch} />
                 :
                 <div className="w-full">
-                  <Table tasks={data?.tasks} />
+                  <Table tasks={data?.tasks} refetch={refetch} />
                 </div>
             }
           </Tabs>

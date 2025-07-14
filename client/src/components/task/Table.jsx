@@ -23,7 +23,7 @@ const ICONS = {
     low: <MdKeyboardArrowDown />,
 }
 
-const Table = ({ tasks }) => {
+const Table = ({ tasks, refetch }) => {
 
     const [openDialog, setOpenDialog] = useState(false);
     const [selected, setSelected] = useState(null);
@@ -50,7 +50,7 @@ const Table = ({ tasks }) => {
 
             setTimeout(() => {
                 setOpenDialog(false);
-                window.location.reload();
+                refetch();
             }, 500);
         } catch (err) {
             console.log(err);
