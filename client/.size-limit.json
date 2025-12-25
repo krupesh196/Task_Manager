@@ -1,0 +1,14 @@
+[
+  {
+    "path": "dist/assets/index-*.js",
+    "limit": "120 KB"
+  },
+  {
+    "path": "dist/assets/vendor-*.js",
+    "limit": "300 KB"
+  },
+  {
+    "path": "dist/assets/react-vendor-*.js",
+    "limit": "420 KB"
+  }
+]

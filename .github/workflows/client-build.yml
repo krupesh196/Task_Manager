@@ -1,0 +1,38 @@
+name: Client build
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build-client:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install and build client
+        working-directory: ./client
+        run: |
+          npm ci
+          npm run build
+
+      - name: Check bundle size
+        working-directory: ./client
+        run: |
+          npm ci
+          npm run size:ci
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-dist
+          path: client/dist
